@@ -2,7 +2,7 @@ from queue import PriorityQueue
 from PIL import Image
 from point import Point3d
 from util import read_csv, read_points
-from setup import cost_map, X_DISTANCE, Y_DISTANCE, INFINITE
+from constants import cost_map, X_DISTANCE, Y_DISTANCE, INFINITE
 
 
 class ShortestPathFinder:
@@ -63,6 +63,9 @@ class ShortestPathFinder:
         :return: The path from the start to the goal.
         """
         current = goal
+        if current not in came_from: #check if no solution
+            return []
+
         path = []
         while current != start:
             path.append(current)
