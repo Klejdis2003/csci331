@@ -16,7 +16,7 @@ def setup_data(terrain_image_file: str, elevation_file: str, path_file: str, out
     return terrain_image, elevation_data, path_points, output_path
 
 def hx(p1: Point3d, p2: Point3d) -> float:
-    return p2.distance_from(p1, X_DISTANCE, Y_DISTANCE)
+    return p1.distance_from(p2, X_DISTANCE, Y_DISTANCE)
 
 
 def get_neighbors(point: Point3d, terrain_data: PIL.ImageFile, elevation_data: list[list[float]]) -> list[Point3d]:
@@ -57,11 +57,15 @@ def a_star_search(start: Point3d, goal: Point3d, terrain_data: PIL.ImageFile, el
         neighbors = get_neighbors(current, terrain_data, elevation_data)
 
         for next_node in neighbors:
-            new_cost = cost_map[terrain_data.getpixel((next_node.x, next_node.y))].cost + cost_so_far[current]
+            terrain_cost = cost_map[terrain_data.getpixel((next_node.x, next_node.y))].cost
+            if terrain_cost == INFINITE:
+                continue
+
+            new_cost = terrain_cost + cost_so_far[current]
 
             if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
                 cost_so_far[next_node] = new_cost
-                priority = new_cost + hx(goal, next_node)  # f = g + h (cost + heuristic)
+                priority = new_cost + hx(next_node, goal)
                 frontier.put((priority, next_node))  # Add to frontier with priority
                 came_from[next_node] = current  # Keep track of the path
 
@@ -108,7 +112,7 @@ def main():
         x1, y1 = path_points[i]
         x2, y2 = path_points[i + 1]
         start = Point3d(x1, y1, elevation_data[y1][x1])
-        goal = Point3d(x2, y2, elevation_data[y1][x1])
+        goal = Point3d(x2, y2, elevation_data[y2][x2])
 
         path = a_star_search(start, goal, terrain_image, elevation_data)
         output_image = draw_path(path, output_image , output_path)
