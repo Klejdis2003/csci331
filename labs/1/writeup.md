@@ -6,7 +6,7 @@
 Since we have 3 dimensional points where change in elevation also matters,
 I chose to use the Euclidean distance as my heuristic. This is because the
 Euclidean distance is the shortest distance between two points, even in 3D space.
-Therefore, $for$ $P_1 = (x1, y1, z1)$ and $P2 = (x2, y2, z2)$
+Therefore, $for$ $P_1 = (x1, y1, z1)$ and $P_2 = (x2, y2, z2)$
 $h(x) = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}$
 
 ### Neighbors Function
@@ -31,7 +31,8 @@ costs = [
 ```
 I chose `Open Land`/`Foot Path` as the bases, hence a cost of **1.0**. Everything else is expressed
 relative to them. For example, `Rough Meadow` is **1.5** times more costly than `Open Land` because
-it is harder to traverse. The `INFINITE` cost is used for `Impassable Vegetation` and `Out of Bounds`
+it is harder to traverse. For water bodies, they significantly slow you down, so they have a cost of **15**.
+The `INFINITE` cost is used for `Impassable Vegetation` and `Out of Bounds`
 because they are impassable.
 
 ### A* Implementation
