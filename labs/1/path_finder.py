@@ -1,3 +1,4 @@
+from math import sqrt
 from queue import PriorityQueue
 from PIL import Image
 from point import Point3d
@@ -6,6 +7,8 @@ from constants import cost_map, X_DISTANCE, Y_DISTANCE, INFINITE
 
 
 class ShortestPathFinder:
+
+
     def __init__(self, terrain_image_file: str, elevation_file: str, path_file: str, output_image_file: str):
         """
         Initializes the ShortestPathFinder.
@@ -37,6 +40,21 @@ class ShortestPathFinder:
         :return: The distance between the two points.
         """
         return p1.distance_from(p2, X_DISTANCE, Y_DISTANCE)
+
+    def _cx(self, p1: Point3d, p2: Point3d) -> float:
+        """
+        Cost function for A* search. Uses Euclidean distance to calculate the distance between two points in 3D space.
+        :param p1: Point 1
+        :param p2: Point 2
+        :return: The distance between the two points.
+        """
+        terrain_cost = cost_map[self.terrain_image.getpixel((p2.x, p2.y))].cost
+        distance_cost = p1.distance_from(p2, X_DISTANCE, Y_DISTANCE)
+
+        is_diagonal = abs(p1.x - p2.x) == 1 and abs(p1.y - p2.y) == 1
+        if is_diagonal:
+            distance_cost *= sqrt(2)
+        return distance_cost + terrain_cost
 
     def _get_neighbors(self, point: Point3d) -> list[Point3d]:
         """
@@ -78,14 +96,15 @@ class ShortestPathFinder:
         """
         A* search algorithm to find the shortest path from the start to the goal.
         """
-        frontier = PriorityQueue()
-        frontier.put((0, start))
+        frontier: PriorityQueue[ShortestPathFinder.PriorityNode] = PriorityQueue()
+        frontier.put(ShortestPathFinder.PriorityNode(start, 0))
 
         came_from = {start: None}
         cost_so_far = {start: 0}
 
         while not frontier.empty():
-            current_priority, current = frontier.get()
+            current_node = frontier.get()
+            current_priority, current = current_node.priority, current_node.point
 
             if current == goal:
                 break
@@ -97,12 +116,12 @@ class ShortestPathFinder:
                 if terrain_cost == INFINITE:
                     continue
 
-                new_cost = terrain_cost + cost_so_far[current]
+                new_cost = cost_so_far[current] + self._cx(current, next_node)
 
                 if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
                     cost_so_far[next_node] = new_cost
-                    priority = new_cost + self._hx(next_node, goal)
-                    frontier.put((priority, next_node))
+                    priority = new_cost
+                    frontier.put(ShortestPathFinder.PriorityNode(next_node, priority))
                     came_from[next_node] = current
 
         return self._reconstruct_path(came_from, start, goal)
@@ -145,5 +164,16 @@ class ShortestPathFinder:
         flattened_paths = [point for path in paths for point in path]
         return sum(flattened_paths[i].distance_from(flattened_paths[i + 1], X_DISTANCE, Y_DISTANCE)
                    for i in range(len(flattened_paths) - 1))
+
+    class PriorityNode:
+        def __init__(self, point: Point3d, priority: float):
+            self.point = point
+            self.priority = priority
+
+        def __lt__(self, other):
+            return self.priority < other.priority
+
+        def __eq__(self, other):
+            return self.priority == other.priority
 
 

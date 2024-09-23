@@ -14,7 +14,7 @@ Every node/point has 8 neighbors. 1 for each direction (N, S, E, W, NE, NW, SE, 
 Therefore, the neighbors function will return a list of 8 neighbors for each node/point.
 
 ### Path Cost Function
-Costs are defined in `constants.py` as follows:
+Terrain costs are defined in `constants.py` as follows:
 ```python
 costs = [
     CostModel('Open Land', (248, 148, 18), 1.0),
@@ -34,6 +34,11 @@ relative to them. For example, `Rough Meadow` is **1.5** times more costly than 
 it is harder to traverse. For water bodies, they significantly slow you down, so they have a cost of **15**.
 The `INFINITE` cost is used for `Impassable Vegetation` and `Out of Bounds`
 because they are impassable.
+Now, the actual cost function combines the distance cost(result from heuristic) with the terrain cost. If the
+path is diagonal, the cost is multiplied by $\sqrt{2}$ to account for it.
+c(x) is the total cost, h(x) is the heuristic cost, and g(x) is the terrain cost.
+* $c(x) = h(x) * g(x)$ 
+* $c(x) = h(x) * g(x) * \sqrt{2}$ if diagonal
 
 ### A* Implementation
 Traditional implementation of A* algorithm, with a priority queue to keep track of the nodes to visit. The INFINITE
