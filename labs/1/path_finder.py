@@ -43,10 +43,10 @@ class ShortestPathFinder:
 
     def _cx(self, p1: Point3d, p2: Point3d) -> float:
         """
-        Cost function for A* search. Uses Euclidean distance to calculate the distance between two points in 3D space.
+        Total cost function that combines the terrain cost and the distance cost.
         :param p1: Point 1
         :param p2: Point 2
-        :return: The distance between the two points.
+        :return: The total cost of moving from point 1 to point 2.
         """
         terrain_cost = cost_map[self.terrain_image.getpixel((p2.x, p2.y))].cost
         distance_cost = p1.distance_from(p2, X_DISTANCE, Y_DISTANCE)
@@ -112,9 +112,6 @@ class ShortestPathFinder:
             neighbors = self._get_neighbors(current)
 
             for next_node in neighbors:
-                terrain_cost = cost_map[self.terrain_image.getpixel((next_node.x, next_node.y))].cost
-                if terrain_cost == INFINITE:
-                    continue
 
                 new_cost = cost_so_far[current] + self._cx(current, next_node)
 
