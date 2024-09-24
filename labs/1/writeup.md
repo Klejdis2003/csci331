@@ -31,7 +31,7 @@ costs = [
 ```
 I chose `Open Land`/`Foot Path` as the bases, hence a cost of **1.0**. Everything else is expressed
 relative to them. For example, `Rough Meadow` is **1.5** times more costly than `Open Land` because
-it is harder to traverse. For water bodies, they significantly slow you down, so they have a cost of **15**.
+it is harder to traverse. For water bodies, they significantly slow you down, so they have a cost of **30**.
 The `INFINITE` cost is used for `Impassable Vegetation` and `Out of Bounds`
 because they are impassable.
 Now, the actual cost function combines the distance cost(result from heuristic) with the terrain cost. If the
